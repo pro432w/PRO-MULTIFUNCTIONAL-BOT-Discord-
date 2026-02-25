@@ -62,9 +62,30 @@ module.exports = async (req, res) => {
         return res.json(jsonResponse({ content: `**IP Info:**\nCountry: ${data.country}\nCity: ${data.city}\nISP: ${data.isp}` }));
       }
 
+      // Updated: TTS will now send an actual MP3 file
       if (name === 'say') {
         const url = `http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(value)}&tl=en`;
-        return res.json(jsonResponse({ content: `Audio: ${url}` }));
+        const audioRes = await fetch(url);
+        const audioBuffer = await audioRes.buffer();
+
+        const boundary = '----DiscordBotBoundary123';
+        let bodyStart = `--${boundary}\r\n`;
+        bodyStart += `Content-Disposition: form-data; name="payload_json"\r\n\r\n`;
+        bodyStart += JSON.stringify({ type: 4, data: { content: "Here is your audio:" } }) + `\r\n`;
+        bodyStart += `--${boundary}\r\n`;
+        bodyStart += `Content-Disposition: form-data; name="files[0]"; filename="audio.mp3"\r\n`;
+        bodyStart += `Content-Type: audio/mpeg\r\n\r\n`;
+
+        const bodyEnd = `\r\n--${boundary}--\r\n`;
+
+        const payload = Buffer.concat([
+          Buffer.from(bodyStart, 'utf-8'),
+          audioBuffer,
+          Buffer.from(bodyEnd, 'utf-8')
+        ]);
+
+        res.setHeader('Content-Type', `multipart/form-data; boundary=${boundary}`);
+        return res.send(payload);
       }
 
       if (name === 'help') {
@@ -80,3 +101,4 @@ module.exports = async (req, res) => {
 
   return res.status(404).send('Unknown Interaction');
 };
+           
