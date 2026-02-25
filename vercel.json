@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/interaction.js", "use": "@vercel/node" },
+    { "src": "api/register.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/interaction", "dest": "/api/interaction.js" },
+    { "src": "/api/register", "dest": "/api/register.js" }
+  ]
+}
