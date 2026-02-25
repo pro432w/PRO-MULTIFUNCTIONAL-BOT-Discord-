@@ -1,0 +1,8 @@
+{
+  "name": "discord-bot-mobile",
+  "version": "1.0.0",
+  "dependencies": {
+    "discord-interactions": "^3.4.0",
+    "node-fetch": "^2.6.9"
+  }
+}
